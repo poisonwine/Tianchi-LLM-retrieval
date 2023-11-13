@@ -3,54 +3,10 @@ from typing import List
 import re
 import tqdm
 
-from langchain.document_loaders.unstructured import UnstructuredFileLoader
 from langchain.schema import Document
 import spacy
 import PyPDF2
 
-
-class ChinesePDFTextLoader(UnstructuredFileLoader):
-
-    def _get_elements(self) -> List:
-
-        def extract_text_from_pdf(filepath, dir_path="tmp_files"):
-            """Extract text content from a PDF file."""
-            contents = []
-            import PyPDF2
-            with open(filepath, 'rb') as f:
-                pdf_reader = PyPDF2.PdfReader(f)
-                for i, page in enumerate(pdf_reader.pages):
-                    page_text = page.extract_text().strip()
-                    raw_text = [text.strip() for text in page_text.splitlines() if text.strip()]
-                    raw_text = [re.sub(r"\s+", " ", text) for text in raw_text]
-                    raw_text = [re.sub(r'\.{2,}', " ", text) for text in raw_text]
-                    new_text = ''
-                    for text in raw_text:
-                        new_text += text
-                        if text[-1] in ['.', '!', '?', '。', '！', '？', '…', ';', '；', ':', '：', '”', '’', '）', '】', '》',
-                                        '」', '』', '〕', '〉', '》', '〗', '〞', '〟', '»', '"', "'", ')', ']', '}']:
-                            contents.append(Document(page_content=new_text, metadata={'page_number': i+1}))
-                            # contents.append(new_text)
-                            new_text = ''
-                    if new_text:
-                        contents.append(Document(page_content=new_text, metadata={'page_number': i+1}))
-                        # contents.append(new_text)
-            full_dir_path = os.path.join(os.path.dirname(filepath), dir_path)
-            if not os.path.exists(full_dir_path):
-                os.makedirs(full_dir_path)
-            txt_file_path = os.path.join(full_dir_path, f"{os.path.split(filepath)[-1]}.txt")
-            print(" txt file have been stored in {}".format(txt_file_path))
-            with open(txt_file_path, 'w', encoding='utf-8') as fout:
-                for doc in contents:
-                    fout.write(str(doc))
-                    fout.write("\n")
-                fout.close()
-            return txt_file_path
-
-        txt_file_path = extract_text_from_pdf(self.file_path)
-        from utils import PartitionChineseText
-        return PartitionChineseText(filename=txt_file_path, **self.unstructured_kwargs)
-    
 
 def extract_page_text(filepath, max_len=256):
     page_content  = []
