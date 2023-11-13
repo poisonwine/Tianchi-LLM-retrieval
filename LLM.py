@@ -44,6 +44,7 @@ class LLMPredictor(object):
         content = ""
         for i, doc in enumerate(context):
             content +=  doc.page_content + "\n---\n"
+        #content = "\n".join(doc.page_content for doc in context) # 直接使用这个效果貌似更好
         input_ids = self.tokenizer(content, return_tensors="pt", add_special_tokens=False).input_ids
         if len(input_ids) > self.max_token:
             content = self.tokenizer.decode(input_ids[:self.max_token-1])
