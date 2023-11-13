@@ -6,5 +6,5 @@
 
 2.embedding 模型采用 BGE-large-zh-v1.5, 其它项目用下来这个开源embedding模型效果最好，top5召回和openai embedding模型差不多
 
-3.pdf 解析就是一个简单的按chunk=256切，去掉了目录，合并了一些简短的上下文，利用FAISS语义检索top5
+3.pdf 解析使用pypdf2， 简单的按chunk=256切，去掉了目录，合并了一些简短的上下文，利用FAISS语义检索top5
 
